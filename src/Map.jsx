@@ -31,10 +31,14 @@ export default class Map extends React.Component {
     this.setState({ viewport })
   }
 
+  _onChangeViewPort(viewport) {
+    this.setState({ viewport: Object.assign(this.state.viewport, viewport) })
+  }
+
   render () {
     return <MapGL
           {...this.state.viewport}
-          onChangeViewport={viewport => this.setState({ viewport: Object.assign(this.state.viewport, viewport) })}
+          onChangeViewport={this._onChangeViewPort.bind(this)}
           mapboxApiAccessToken="pk.eyJ1IjoiZGF2ZWVkIiwiYSI6ImNpdjFkbnl0ZTAwMDAyeWxwNzJpZ3VpOTYifQ.4wb1YI5SR30tDpZ1eqg9TA"
           mapStyle={'mapbox://styles/mapbox/basic-v9'}
       >
