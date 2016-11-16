@@ -2,7 +2,7 @@
 const ACCELERATION = 4/3.6          // m/s2   /// 0->100kmh in 20s => 0->30 in 7s => 0->4 km/h in 1s => 4/3,6 m/s2
 const TURN_ACC = 20                 // °/s2   /// 
 export const MAX_SPEED = 60/3.6     // m/s    /// 30km/h => 30000/3600 m/s
-const REFRESH = 5                   // s
+export const TICK_INTERVAL = 5      // s
 
 const r = () => Math.random() - 0.5
 export const randomBearing = () => Math.random() * 360
@@ -22,11 +22,13 @@ export const randomPos = (lngLat) => nextPosition(lngLat, randomBearing(), rando
 export const route = lengthKm => bus => {
   const route = [bus]
   let lastWp = bus.position
-  for(let i = 0; i < lengthKm * 1000 / REFRESH; i++) { 
-    lastWp = nextPosition(lastWp, bus.bearing, MAX_SPEED * REFRESH / 1000)
+  let lastBearing = bus.bearing
+  for(let i = 1; i < lengthKm * 1000 / TICK_INTERVAL; i++) { 
+    lastBearing = (i*TICK_INTERVAL/100) % 1 === 0 ? randomBearing() : lastBearing
+    lastWp = nextPosition(lastWp, lastBearing, MAX_SPEED * TICK_INTERVAL / 1000)
     route.push({ 
       position: lastWp,
-      bearing: (i*REFRESH/1000) % 1 === 0 ? randomBearing() : bus.bearing,
+      bearing: lastBearing,
       speed: MAX_SPEED
     })
   }

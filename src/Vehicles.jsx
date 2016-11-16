@@ -1,71 +1,57 @@
 import React from 'react'
-import {SVGOverlay} from 'react-map-gl'
+import { SVGOverlay } from 'react-map-gl'
 
-import {drawBus, bus} from './bus'
-import {route} from './routes'
+import { drawBus, bus } from './bus'
+import { route, TICK_INTERVAL } from './routes'
 
-const randomRoute = route(10)
-const buses = [bus([-122.447177, 37.755705])]
-const routes = [randomRoute(buses[0])]
+const newBus = () => bus([-122.447177, 37.755705])
+const randomRoute = () => route(10)(newBus())
+// routes are generated with pos every 5s
+const routes = Array.from(Array(30), () => randomRoute())
+
+const interpolate = (s, e, pc) => s + pc * (e-s)
 
 export default class Vehicles extends React.Component {
 
   state = {
-    /*position: randomPos(), 
-    bearing: randomBearing(),
-    speed: MAX_SPEED,
-    move: {
-      a: 1,
-      t: 0,
-    }*/
     buses: routes.map(r => r[0]),
     time: 0,
   }
 
   componentDidMount() {
-    setInterval(() => {
-      const time = this.state.time + 1
-      this.setState({
-        buses: routes.map(r => r[time]),
-        time
-      })
-    }, 5000)
-    /*let lastFrame = 0
 
-    const move = (timestamp) => {
-      const elapsed = (timestamp - lastFrame)
-      const secondsPassed = elapsed / 1000
+    const startTime = 0
+    const timeFactor = 1
+    const reposition = elapsed => {
+      const tick = (elapsed - startTime) / (1000 * TICK_INTERVAL / timeFactor)
+      const pc = tick - Math.floor(tick)
 
-      const newMove = nextMove(this.state.move)
-      const newBearing = this.state.bearing + (newMove.t * TURN_ACC * secondsPassed)
-      const newSpeed = Math.min(this.state.speed + (newMove.a * ACCELERATION * secondsPassed), MAX_SPEED)
-      
       this.setState({
-        bearing: newBearing,
-        speed: newSpeed,
-        position: nextPosition(
-          this.state.position, 
-          newBearing, 
-          newSpeed * secondsPassed / 1000),
-        move: newMove
+        buses: this.state.buses.map((b, i) => {
+          const prevPos = routes[i][Math.floor(tick)]
+          const nextPos = routes[i][Math.ceil(tick)]
+          return {
+            position: prevPos.position.map((p, i) => interpolate(p, nextPos.position[i], pc)),
+            bearing: interpolate(prevPos.bearing, nextPos.bearing, pc),
+            speed: prevPos.speed,
+          }
+        })
       })
 
-      lastFrame = timestamp
-      requestAnimationFrame(move)
+      requestAnimationFrame(reposition)
     }
 
-    requestAnimationFrame(move)*/
+    requestAnimationFrame(reposition)
   }
 
   _drawBus(opt) {
-    if (opt.isDragging) return
-    return drawBus(opt, this.state.buses[0])
+    return this.state.buses.map((b, i) => drawBus(i, opt, b))
   }
 
   render() {
     return <SVGOverlay
-        {...this.props.viewport}
-        redraw={this._drawBus.bind(this)}
+      {...this.props.viewport}
+      redraw={this._drawBus.bind(this)}
       />
   }
 }

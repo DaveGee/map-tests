@@ -1,11 +1,11 @@
 import React from 'react'
 import {randomPos, randomBearing, MAX_SPEED} from './routes'
 
-export const drawBus = (opt, {position, bearing}) => {
+export const drawBus = (i, opt, {position, bearing}) => {
   const [x, y] = opt.project(position)
   const w = 20
   const a = bearing
-  return <g>
+  return <g key={i}>
       <g transform={`rotate(${a}, ${x}, ${y})`}>
         <rect 
           x={x-w*0.3} 
