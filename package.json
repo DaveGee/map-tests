@@ -51,12 +51,12 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "immutable": "^3.8.1",
     "lodash": "^4.16.6",
-    "mapbox-gl": "^0.26.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "react-map-gl": "^1.7.2",
-    "react-mapbox-gl": "^0.16.1"
+    "react-map-gl": "2.0.0",
+    "react-mapbox-gl": "1.0.0"
   },
   "scripts": {
     "start": "node scripts/start.js",
